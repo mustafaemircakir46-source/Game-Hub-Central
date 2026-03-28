@@ -1,0 +1,23 @@
+packages:
+  "framer-motion": "For premium smooth animations, page transitions, and interactive gesture feedback"
+  "zustand": "For lightweight, fast global state management (auth state, ui toggles)"
+  "date-fns": "For formatting timestamps in posts, comments, and games"
+  "lucide-react": "For beautiful, consistent iconography across the platform"
+  "clsx": "Utility for constructing className strings conditionally"
+  "tailwind-merge": "Utility to efficiently merge Tailwind CSS classes"
+
+images:
+  - path: "artifacts/rukiye-ekinci/public/images/logo.png"
+    description: "Minimalist, sleek geometric gaming logo mark, neon purple and glowing deep blue gradient, dark background, premium Apple-like aesthetic"
+    aspect_ratio: "1:1"
+  - path: "artifacts/rukiye-ekinci/public/images/hero-bg.png"
+    description: "Abstract premium dark glassmorphism background, deep black with subtle glowing neon purple and cyan volumetric lights, 3D modern elegant texture"
+    aspect_ratio: "16:9"
+  - path: "artifacts/rukiye-ekinci/public/images/ai-avatar.png"
+    description: "Futuristic friendly AI assistant avatar, glowing holographic elements, dark sleek background, premium 3D render"
+    aspect_ratio: "1:1"
+
+notes:
+  - "Assuming customFetch handles the localStorage token injection automatically, or API relies on httpOnly cookies for auth."
+  - "Implemented a global Zustand store for Auth state to instantly reflect login/logout across the app."
+  - "Platform defaults to Dark Mode aggressively as per design requirements."

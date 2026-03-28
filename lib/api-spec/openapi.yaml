@@ -1,22 +1,34 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: RUKİYE EKİNCİ Oyun Platformu API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication operations
+  - name: games
+    description: Game operations
+  - name: users
+    description: User operations
+  - name: posts
+    description: Post/media operations
+  - name: social
+    description: Social interactions
+  - name: admin
+    description: Admin operations
+  - name: ai
+    description: AI operations
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +36,869 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /auth/register:
+    post:
+      operationId: registerUser
+      tags: [auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      operationId: loginUser
+      tags: [auth]
+      summary: Login user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/logout:
+    post:
+      operationId: logoutUser
+      tags: [auth]
+      summary: Logout user
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /games:
+    get:
+      operationId: getGames
+      tags: [games]
+      summary: Get all approved games
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: orientation
+          in: query
+          schema:
+            type: string
+            enum: [vertical, horizontal]
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            enum: [popular, newest, trending]
+      responses:
+        "200":
+          description: List of games
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GameListResponse"
+
+    post:
+      operationId: createGame
+      tags: [games]
+      summary: Upload a new game
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateGameRequest"
+      responses:
+        "201":
+          description: Game created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Game"
+
+  /games/horizontal:
+    get:
+      operationId: getHorizontalGames
+      tags: [games]
+      summary: Get horizontal games for dedicated section
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of horizontal games
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GameListResponse"
+
+  /games/trending:
+    get:
+      operationId: getTrendingGames
+      tags: [games]
+      summary: Get trending games
+      responses:
+        "200":
+          description: Trending games
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GameListResponse"
+
+  /games/recommended:
+    get:
+      operationId: getRecommendedGames
+      tags: [games]
+      summary: Get AI-personalized game recommendations
+      responses:
+        "200":
+          description: Recommended games
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GameListResponse"
+
+  /games/{id}:
+    get:
+      operationId: getGame
+      tags: [games]
+      summary: Get a single game
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Game details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GameDetail"
+        "404":
+          description: Game not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    delete:
+      operationId: deleteGame
+      tags: [games]
+      summary: Delete a game
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /games/{id}/play:
+    post:
+      operationId: recordGamePlay
+      tags: [games]
+      summary: Record a game play/view
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /games/{id}/like:
+    post:
+      operationId: likeGame
+      tags: [games]
+      summary: Like or unlike a game
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Like toggled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LikeResponse"
+
+  /games/{id}/comments:
+    get:
+      operationId: getGameComments
+      tags: [games]
+      summary: Get comments for a game
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Comments
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommentListResponse"
+
+    post:
+      operationId: addGameComment
+      tags: [games]
+      summary: Add a comment to a game
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCommentRequest"
+      responses:
+        "201":
+          description: Comment added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
+
+  /posts:
+    get:
+      operationId: getPosts
+      tags: [posts]
+      summary: Get all posts (feed)
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [all, photo, video, article]
+      responses:
+        "200":
+          description: Posts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostListResponse"
+
+    post:
+      operationId: createPost
+      tags: [posts]
+      summary: Create a new post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePostRequest"
+      responses:
+        "201":
+          description: Post created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+
+  /posts/{id}:
+    get:
+      operationId: getPost
+      tags: [posts]
+      summary: Get a single post
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Post
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+
+    delete:
+      operationId: deletePost
+      tags: [posts]
+      summary: Delete a post
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /posts/{id}/like:
+    post:
+      operationId: likePost
+      tags: [posts]
+      summary: Like or unlike a post
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Like toggled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LikeResponse"
+
+  /posts/{id}/comments:
+    get:
+      operationId: getPostComments
+      tags: [posts]
+      summary: Get comments for a post
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Comments
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommentListResponse"
+
+    post:
+      operationId: addPostComment
+      tags: [posts]
+      summary: Add a comment to a post
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCommentRequest"
+      responses:
+        "201":
+          description: Comment added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
+
+  /users/{id}:
+    get:
+      operationId: getUserProfile
+      tags: [users]
+      summary: Get user profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+
+  /users/{id}/follow:
+    post:
+      operationId: followUser
+      tags: [users]
+      summary: Follow or unfollow a user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Follow toggled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FollowResponse"
+
+  /users/me/profile:
+    put:
+      operationId: updateProfile
+      tags: [users]
+      summary: Update current user profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProfileRequest"
+      responses:
+        "200":
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /ai/chat:
+    post:
+      operationId: aiChat
+      tags: [ai]
+      summary: Chat with AI assistant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AIChatRequest"
+      responses:
+        "200":
+          description: AI response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AIChatResponse"
+
+  /ai/generate-game:
+    post:
+      operationId: generateGame
+      tags: [ai]
+      summary: AI-generate a game from description
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateGameRequest"
+      responses:
+        "200":
+          description: Generated game code
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenerateGameResponse"
+
+  /ai/generate-poster:
+    post:
+      operationId: generatePoster
+      tags: [ai]
+      summary: AI-generate a poster/image
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GeneratePosterRequest"
+      responses:
+        "200":
+          description: Generated poster
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeneratePosterResponse"
+
+  /ai/generate-article:
+    post:
+      operationId: generateArticle
+      tags: [ai]
+      summary: AI-generate an article
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateArticleRequest"
+      responses:
+        "200":
+          description: Generated article
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenerateArticleResponse"
+
+  /ai/recommendations:
+    get:
+      operationId: getAIRecommendations
+      tags: [ai]
+      summary: Get personalized AI recommendations
+      responses:
+        "200":
+          description: AI recommendations
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AIRecommendationsResponse"
+
+  /admin/login:
+    post:
+      operationId: adminLogin
+      tags: [admin]
+      summary: Admin login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminLoginRequest"
+      responses:
+        "200":
+          description: Admin logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminLoginResponse"
+        "401":
+          description: Wrong password
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /admin/stats:
+    get:
+      operationId: getAdminStats
+      tags: [admin]
+      summary: Get platform statistics
+      responses:
+        "200":
+          description: Stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminStats"
+
+  /admin/games/pending:
+    get:
+      operationId: getPendingGames
+      tags: [admin]
+      summary: Get games pending approval
+      responses:
+        "200":
+          description: Pending games
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GameListResponse"
+
+  /admin/games/{id}/approve:
+    post:
+      operationId: approveGame
+      tags: [admin]
+      summary: Approve a pending game
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Game approved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /admin/games/{id}/reject:
+    post:
+      operationId: rejectGame
+      tags: [admin]
+      summary: Reject a pending game
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RejectRequest"
+      responses:
+        "200":
+          description: Game rejected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /admin/users:
+    get:
+      operationId: getAllUsers
+      tags: [admin]
+      summary: Get all users
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Users list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserListResponse"
+
+  /admin/users/{id}/ban:
+    post:
+      operationId: banUser
+      tags: [admin]
+      summary: Ban or unban a user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User banned/unbanned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /admin/posts:
+    get:
+      operationId: getAllPosts
+      tags: [admin]
+      summary: Get all posts for admin
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: All posts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostListResponse"
+
+  /admin/content/{type}/{id}:
+    delete:
+      operationId: deleteContent
+      tags: [admin]
+      summary: Delete any content (game, post, comment)
+      parameters:
+        - name: type
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [game, post, comment]
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Content deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /admin/settings:
+    get:
+      operationId: getSettings
+      tags: [admin]
+      summary: Get platform settings
+      responses:
+        "200":
+          description: Settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlatformSettings"
+
+    put:
+      operationId: updateSettings
+      tags: [admin]
+      summary: Update platform settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PlatformSettings"
+      responses:
+        "200":
+          description: Settings updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlatformSettings"
+
+  /notifications:
+    get:
+      operationId: getNotifications
+      tags: [users]
+      summary: Get user notifications
+      responses:
+        "200":
+          description: Notifications
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationListResponse"
+
+  /search:
+    get:
+      operationId: searchAll
+      tags: [games]
+      summary: Search across games, users, and posts
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [all, games, users, posts]
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchResponse"
+
+  /leaderboard:
+    get:
+      operationId: getLeaderboard
+      tags: [games]
+      summary: Get top games and players leaderboard
+      responses:
+        "200":
+          description: Leaderboard data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaderboardResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -31,6 +906,614 @@ components:
       properties:
         status:
           type: string
-      required:
-        - status
+      required: [status]
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+      required: [error]
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      required: [success]
+
+    RegisterRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        displayName:
+          type: string
+      required: [username, email, password]
+
+    LoginRequest:
+      type: object
+      properties:
+        emailOrUsername:
+          type: string
+        password:
+          type: string
+      required: [emailOrUsername, password]
+
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        token:
+          type: string
+      required: [user, token]
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        email:
+          type: string
+        displayName:
+          type: string
+        avatar:
+          type: string
+          nullable: true
+        bio:
+          type: string
+          nullable: true
+        isAdmin:
+          type: boolean
+        isBanned:
+          type: boolean
+        followersCount:
+          type: integer
+        followingCount:
+          type: integer
+        gamesCount:
+          type: integer
+        postsCount:
+          type: integer
+        createdAt:
+          type: string
+      required: [id, username, email, isAdmin, isBanned, followersCount, followingCount, gamesCount, postsCount, createdAt]
+
+    UserProfile:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        games:
+          type: array
+          items:
+            $ref: "#/components/schemas/Game"
+        posts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Post"
+        isFollowing:
+          type: boolean
+      required: [user, games, posts, isFollowing]
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        displayName:
+          type: string
+        bio:
+          type: string
+        avatar:
+          type: string
+
+    Game:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        thumbnail:
+          type: string
+          nullable: true
+        gameUrl:
+          type: string
+          nullable: true
+        gameFile:
+          type: string
+          nullable: true
+        videoPreview:
+          type: string
+          nullable: true
+        category:
+          type: string
+        orientation:
+          type: string
+          enum: [vertical, horizontal]
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+        uploaderId:
+          type: integer
+        uploaderName:
+          type: string
+        likesCount:
+          type: integer
+        commentsCount:
+          type: integer
+        playsCount:
+          type: integer
+        isLiked:
+          type: boolean
+        tags:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+      required: [id, title, description, category, orientation, status, uploaderId, uploaderName, likesCount, commentsCount, playsCount, isLiked, tags, createdAt]
+
+    GameDetail:
+      allOf:
+        - $ref: "#/components/schemas/Game"
+        - type: object
+          properties:
+            comments:
+              type: array
+              items:
+                $ref: "#/components/schemas/Comment"
+            relatedGames:
+              type: array
+              items:
+                $ref: "#/components/schemas/Game"
+          required: [comments, relatedGames]
+
+    CreateGameRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        thumbnail:
+          type: string
+        gameUrl:
+          type: string
+        gameFile:
+          type: string
+        videoPreview:
+          type: string
+        category:
+          type: string
+        orientation:
+          type: string
+          enum: [vertical, horizontal]
+        tags:
+          type: array
+          items:
+            type: string
+      required: [title, description, category, orientation]
+
+    GameListResponse:
+      type: object
+      properties:
+        games:
+          type: array
+          items:
+            $ref: "#/components/schemas/Game"
+        total:
+          type: integer
+        page:
+          type: integer
+        totalPages:
+          type: integer
+      required: [games, total, page, totalPages]
+
+    Post:
+      type: object
+      properties:
+        id:
+          type: integer
+        content:
+          type: string
+          nullable: true
+        mediaUrl:
+          type: string
+          nullable: true
+        mediaType:
+          type: string
+          nullable: true
+          enum: [photo, video, null]
+        type:
+          type: string
+          enum: [photo, video, article, text]
+        authorId:
+          type: integer
+        authorName:
+          type: string
+        authorAvatar:
+          type: string
+          nullable: true
+        likesCount:
+          type: integer
+        commentsCount:
+          type: integer
+        isLiked:
+          type: boolean
+        createdAt:
+          type: string
+      required: [id, type, authorId, authorName, likesCount, commentsCount, isLiked, createdAt]
+
+    CreatePostRequest:
+      type: object
+      properties:
+        content:
+          type: string
+        mediaUrl:
+          type: string
+        mediaType:
+          type: string
+          enum: [photo, video]
+        type:
+          type: string
+          enum: [photo, video, article, text]
+      required: [type]
+
+    PostListResponse:
+      type: object
+      properties:
+        posts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Post"
+        total:
+          type: integer
+        page:
+          type: integer
+        totalPages:
+          type: integer
+      required: [posts, total, page, totalPages]
+
+    Comment:
+      type: object
+      properties:
+        id:
+          type: integer
+        content:
+          type: string
+        authorId:
+          type: integer
+        authorName:
+          type: string
+        authorAvatar:
+          type: string
+          nullable: true
+        likesCount:
+          type: integer
+        isLiked:
+          type: boolean
+        createdAt:
+          type: string
+      required: [id, content, authorId, authorName, likesCount, isLiked, createdAt]
+
+    CommentListResponse:
+      type: object
+      properties:
+        comments:
+          type: array
+          items:
+            $ref: "#/components/schemas/Comment"
+        total:
+          type: integer
+      required: [comments, total]
+
+    CreateCommentRequest:
+      type: object
+      properties:
+        content:
+          type: string
+      required: [content]
+
+    LikeResponse:
+      type: object
+      properties:
+        liked:
+          type: boolean
+        likesCount:
+          type: integer
+      required: [liked, likesCount]
+
+    FollowResponse:
+      type: object
+      properties:
+        following:
+          type: boolean
+        followersCount:
+          type: integer
+      required: [following, followersCount]
+
+    AIChatRequest:
+      type: object
+      properties:
+        message:
+          type: string
+        context:
+          type: string
+          nullable: true
+        history:
+          type: array
+          items:
+            type: object
+            properties:
+              role:
+                type: string
+              content:
+                type: string
+            required: [role, content]
+      required: [message]
+
+    AIChatResponse:
+      type: object
+      properties:
+        response:
+          type: string
+        suggestions:
+          type: array
+          items:
+            type: string
+      required: [response, suggestions]
+
+    GenerateGameRequest:
+      type: object
+      properties:
+        description:
+          type: string
+        genre:
+          type: string
+        orientation:
+          type: string
+          enum: [vertical, horizontal]
+        additionalInstructions:
+          type: string
+      required: [description]
+
+    GenerateGameResponse:
+      type: object
+      properties:
+        gameCode:
+          type: string
+        gameName:
+          type: string
+        description:
+          type: string
+        instructions:
+          type: string
+      required: [gameCode, gameName, description, instructions]
+
+    GeneratePosterRequest:
+      type: object
+      properties:
+        prompt:
+          type: string
+        style:
+          type: string
+        gameTitle:
+          type: string
+      required: [prompt]
+
+    GeneratePosterResponse:
+      type: object
+      properties:
+        imageUrl:
+          type: string
+        prompt:
+          type: string
+      required: [imageUrl, prompt]
+
+    GenerateArticleRequest:
+      type: object
+      properties:
+        topic:
+          type: string
+        tone:
+          type: string
+          enum: [professional, casual, exciting, informative]
+        length:
+          type: string
+          enum: [short, medium, long]
+      required: [topic]
+
+    GenerateArticleResponse:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        summary:
+          type: string
+      required: [title, content, summary]
+
+    AIRecommendationsResponse:
+      type: object
+      properties:
+        games:
+          type: array
+          items:
+            $ref: "#/components/schemas/Game"
+        reason:
+          type: string
+      required: [games, reason]
+
+    AdminLoginRequest:
+      type: object
+      properties:
+        password:
+          type: string
+      required: [password]
+
+    AdminLoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        token:
+          type: string
+      required: [success, token]
+
+    AdminStats:
+      type: object
+      properties:
+        totalUsers:
+          type: integer
+        totalGames:
+          type: integer
+        totalPosts:
+          type: integer
+        pendingGames:
+          type: integer
+        totalPlays:
+          type: integer
+        totalLikes:
+          type: integer
+        newUsersToday:
+          type: integer
+        newGamesToday:
+          type: integer
+        topGames:
+          type: array
+          items:
+            $ref: "#/components/schemas/Game"
+        recentActivity:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              message:
+                type: string
+              createdAt:
+                type: string
+            required: [type, message, createdAt]
+      required: [totalUsers, totalGames, totalPosts, pendingGames, totalPlays, totalLikes, newUsersToday, newGamesToday, topGames, recentActivity]
+
+    UserListResponse:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+        total:
+          type: integer
+        page:
+          type: integer
+        totalPages:
+          type: integer
+      required: [users, total, page, totalPages]
+
+    RejectRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+      required: [reason]
+
+    PlatformSettings:
+      type: object
+      properties:
+        siteName:
+          type: string
+        siteDescription:
+          type: string
+        allowRegistration:
+          type: boolean
+        requireGameApproval:
+          type: boolean
+        maxFileSize:
+          type: integer
+        featuredGameId:
+          type: integer
+          nullable: true
+        maintenanceMode:
+          type: boolean
+      required: [siteName, siteDescription, allowRegistration, requireGameApproval, maxFileSize, maintenanceMode]
+
+    Notification:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+          enum: [like, comment, follow, game_approved, game_rejected, mention]
+        message:
+          type: string
+        isRead:
+          type: boolean
+        relatedId:
+          type: integer
+          nullable: true
+        relatedType:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+      required: [id, type, message, isRead, createdAt]
+
+    NotificationListResponse:
+      type: object
+      properties:
+        notifications:
+          type: array
+          items:
+            $ref: "#/components/schemas/Notification"
+        unreadCount:
+          type: integer
+      required: [notifications, unreadCount]
+
+    SearchResponse:
+      type: object
+      properties:
+        games:
+          type: array
+          items:
+            $ref: "#/components/schemas/Game"
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+        posts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Post"
+        total:
+          type: integer
+      required: [games, users, posts, total]
+
+    LeaderboardResponse:
+      type: object
+      properties:
+        topGames:
+          type: array
+          items:
+            $ref: "#/components/schemas/Game"
+        topPlayers:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+      required: [topGames, topPlayers]
