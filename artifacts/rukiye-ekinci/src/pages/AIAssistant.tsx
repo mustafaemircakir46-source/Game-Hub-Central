@@ -9,8 +9,8 @@ import { motion } from "framer-motion";
 
 export default function AIAssistant() {
   const [input, setInput] = useState("");
-  const [messages, setMessages] = useState<{role: 'user' | 'ai', content: string}[]>([
-    { role: 'ai', content: 'Merhaba! Ben Rukiye Ekinci AI Asistanı. Senin için oyun kodlayabilir, poster tasarlayabilir veya makale yazabilirim. Nasıl yardımcı olabilirim?' }
+  const [messages, setMessages] = useState<{role: 'user' | 'assistant', content: string}[]>([
+    { role: 'assistant', content: 'Merhaba! Ben RUKİYE EKİNCİ AI Asistanı. Senin için oyun kodlayabilir, poster tasarlayabilir veya makale yazabilirim. Nasıl yardımcı olabilirim?' }
   ]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -33,10 +33,10 @@ export default function AIAssistant() {
 
     sendChat({ data: { message: userMsg, history: messages } }, {
       onSuccess: (res) => {
-        setMessages(prev => [...prev, { role: 'ai', content: res.response }]);
+        setMessages(prev => [...prev, { role: 'assistant', content: res.response }]);
       },
       onError: () => {
-        setMessages(prev => [...prev, { role: 'ai', content: "Üzgünüm, bir hata oluştu. Lütfen tekrar dene." }]);
+        setMessages(prev => [...prev, { role: 'assistant', content: "Üzgünüm, bir hata oluştu. Lütfen tekrar dene." }]);
       }
     });
   };

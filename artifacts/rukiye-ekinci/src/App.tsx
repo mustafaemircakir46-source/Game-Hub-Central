@@ -14,6 +14,9 @@ import Profile from "@/pages/Profile";
 import AIAssistant from "@/pages/AIAssistant";
 import Auth from "@/pages/Auth";
 import Admin from "@/pages/Admin";
+import Search from "@/pages/Search";
+import Leaderboard from "@/pages/Leaderboard";
+import Notifications from "@/pages/Notifications";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -42,10 +45,9 @@ function Router() {
         <Route path="/kayit" component={Auth} />
         <Route path="/admin" component={Admin} />
         
-        {/* Placeholder routes for completeness based on description */}
-        <Route path="/arama" component={() => <div className="p-8 text-white">Arama - Yakında</div>} />
-        <Route path="/liderboard" component={() => <div className="p-8 text-white">Liderboard - Yakında</div>} />
-        <Route path="/bildirimler" component={() => <div className="p-8 text-white">Bildirimler - Yakında</div>} />
+        <Route path="/arama" component={Search} />
+        <Route path="/liderboard" component={Leaderboard} />
+        <Route path="/bildirimler" component={Notifications} />
         
         <Route component={NotFound} />
       </Switch>

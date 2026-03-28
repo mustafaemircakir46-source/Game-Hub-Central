@@ -33,7 +33,10 @@ router.post("/chat", async (req, res) => {
         Her zaman yardımsever, samimi ve profesyonel ol. Kısa ve öz cevaplar ver.
         ${context ? `Bağlam: ${context}` : ""}`,
       },
-      ...history.map((h: any) => ({ role: h.role, content: h.content })),
+      ...history.map((h: any) => ({
+        role: h.role === 'ai' ? 'assistant' : (h.role === 'user' ? 'user' : 'assistant'),
+        content: h.content
+      })),
       { role: "user", content: message },
     ];
 

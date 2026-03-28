@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Shell } from "@/components/layout/Shell";
 import { useGetPosts, useCreatePost, useLikePost, Post } from "@workspace/api-client-react";
-import { Heart, MessageCircle, Share2, Plus, Image as ImageIcon } from "lucide-react";
+import { Heart, MessageCircle, Share2, Image as ImageIcon, Users } from "lucide-react";
 import { formatRelativeTime } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -55,24 +55,34 @@ export default function Social() {
           </div>
         </div>
 
-        {/* Stories Bar (Mocked) */}
-        <div className="flex gap-4 overflow-x-auto no-scrollbar py-2">
-          {[1,2,3,4,5,6,7].map(i => (
-            <div key={i} className="flex flex-col items-center gap-1 shrink-0 cursor-pointer">
-              <div className="w-16 h-16 rounded-full p-[2px] bg-gradient-to-tr from-primary to-accent">
-                <div className="w-full h-full rounded-full border-2 border-background overflow-hidden">
-                  <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${i}`} alt="story" className="bg-secondary" />
-                </div>
-              </div>
-              <span className="text-xs text-muted-foreground font-medium">User {i}</span>
-            </div>
-          ))}
-        </div>
-
         {/* Feed */}
         <div className="space-y-6">
           {isLoading ? (
-            <div className="text-center p-8 text-muted-foreground">Yükleniyor...</div>
+            <div className="flex flex-col gap-4">
+              {[1,2,3].map(i => (
+                <div key={i} className="glass-card rounded-3xl p-5 border border-white/5 animate-pulse">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-full bg-secondary/60" />
+                    <div className="space-y-2">
+                      <div className="h-3 w-28 bg-secondary/60 rounded" />
+                      <div className="h-2 w-16 bg-secondary/40 rounded" />
+                    </div>
+                  </div>
+                  <div className="h-4 w-3/4 bg-secondary/40 rounded mb-2" />
+                  <div className="h-4 w-1/2 bg-secondary/30 rounded" />
+                </div>
+              ))}
+            </div>
+          ) : !data?.posts.length ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
+              <div className="w-20 h-20 rounded-full bg-secondary/30 flex items-center justify-center">
+                <Users className="w-10 h-10 text-muted-foreground/50" />
+              </div>
+              <div>
+                <p className="text-lg font-semibold text-zinc-400">Henüz gönderi yok</p>
+                <p className="text-sm text-muted-foreground mt-1">İlk gönderiyi sen paylaş!</p>
+              </div>
+            </div>
           ) : (
             data?.posts.map(post => (
               <PostCard key={post.id} post={post} />

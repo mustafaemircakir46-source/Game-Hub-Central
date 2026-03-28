@@ -22,6 +22,16 @@ export default function HorizontalGames() {
               <div key={i} className="rounded-2xl h-64 bg-secondary/50 animate-pulse" />
             ))}
           </div>
+        ) : !data?.games.length ? (
+          <div className="flex flex-col items-center justify-center py-24 text-center gap-4">
+            <div className="w-20 h-20 rounded-full bg-secondary/30 flex items-center justify-center">
+              <Play className="w-10 h-10 text-muted-foreground/40" />
+            </div>
+            <div>
+              <p className="text-lg font-semibold text-zinc-400">Henüz yatay oyun yok</p>
+              <p className="text-sm text-muted-foreground mt-1">İlk yatay oyunu sen yükle!</p>
+            </div>
+          </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {data?.games.map((game) => (

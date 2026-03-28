@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Home, LayoutGrid, PlusSquare, ImagePlay, User, Sparkles, Search, Bell } from "lucide-react";
+import { Home, LayoutGrid, PlusSquare, ImagePlay, User, Sparkles, Search, Bell, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useAuthStore } from "@/store/auth";
@@ -21,6 +21,12 @@ export function Shell({ children, hideTopNav, hideBottomNav, transparentTop }: S
     { href: "/yukle", icon: PlusSquare, label: "Yükle", isAction: true },
     { href: "/sosyal", icon: ImagePlay, label: "Sosyal" },
     { href: user ? `/profil/${user.id}` : "/giris", icon: User, label: "Profil" },
+  ];
+
+  const sidebarExtra = [
+    { href: "/arama", icon: Search, label: "Ara" },
+    { href: "/liderboard", icon: Trophy, label: "Liderboard" },
+    { href: "/bildirimler", icon: Bell, label: "Bildirimler" },
   ];
 
   return (
@@ -103,7 +109,7 @@ export function Shell({ children, hideTopNav, hideBottomNav, transparentTop }: S
       {/* Desktop Sidebar (hidden on mobile) */}
       {!hideBottomNav && (
         <aside className="hidden md:flex flex-col fixed left-0 top-0 bottom-0 w-20 lg:w-64 glass z-40 pt-24 px-4 pb-8">
-          <nav className="flex flex-col gap-4 flex-1">
+          <nav className="flex flex-col gap-2 flex-1">
             {navItems.map((item) => {
               const isActive = location === item.href || (item.href !== '/' && location.startsWith(item.href));
               
@@ -114,17 +120,46 @@ export function Shell({ children, hideTopNav, hideBottomNav, transparentTop }: S
                   className={cn(
                     "flex items-center gap-4 px-4 py-3 rounded-xl transition-all group",
                     isActive ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground",
-                    item.isAction && "bg-gradient-to-r from-primary to-accent text-white hover:opacity-90"
+                    item.isAction && "bg-gradient-to-r from-primary to-accent text-white hover:opacity-90 mt-1"
                   )}
                 >
-                  <item.icon className={cn("w-6 h-6", isActive && !item.isAction ? "text-primary" : "")} />
+                  <item.icon className={cn("w-6 h-6 shrink-0", isActive && !item.isAction ? "text-primary" : "")} />
                   <span className={cn("font-medium hidden lg:block", item.isAction && "font-bold")}>
                     {item.label}
                   </span>
                 </Link>
               );
             })}
+
+            {/* Divider */}
+            <div className="border-t border-white/5 my-2" />
+
+            {sidebarExtra.map((item) => {
+              const isActive = location === item.href || location.startsWith(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "flex items-center gap-4 px-4 py-3 rounded-xl transition-all",
+                    isActive ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground"
+                  )}
+                >
+                  <item.icon className={cn("w-5 h-5 shrink-0", isActive ? "text-primary" : "")} />
+                  <span className="text-sm font-medium hidden lg:block">{item.label}</span>
+                </Link>
+              );
+            })}
           </nav>
+
+          {/* AI Button at bottom */}
+          <Link href="/ai" className={cn(
+            "flex items-center gap-4 px-4 py-3 rounded-xl transition-all mt-auto",
+            location === "/ai" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground"
+          )}>
+            <Sparkles className="w-5 h-5 shrink-0 text-primary" />
+            <span className="text-sm font-medium hidden lg:block">AI Asistanı</span>
+          </Link>
         </aside>
       )}
     </div>
