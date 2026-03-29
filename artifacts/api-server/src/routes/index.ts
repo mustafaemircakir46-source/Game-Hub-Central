@@ -7,6 +7,7 @@ import usersRouter from "./users.js";
 import adminRouter from "./admin.js";
 import aiRouter from "./ai.js";
 import miscRouter from "./misc.js";
+import messagesRouter from "./messages.js";
 
 const router: IRouter = Router();
 
@@ -17,6 +18,7 @@ router.use("/posts", postsRouter);
 router.use("/users", usersRouter);
 router.use("/admin", adminRouter);
 router.use("/ai", aiRouter);
+router.use("/messages", messagesRouter);
 router.use(miscRouter);
 
 export default router;

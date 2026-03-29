@@ -17,6 +17,7 @@ import Admin from "@/pages/Admin";
 import Search from "@/pages/Search";
 import Leaderboard from "@/pages/Leaderboard";
 import Notifications from "@/pages/Notifications";
+import Messages from "@/pages/Messages";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -48,6 +49,7 @@ function Router() {
         <Route path="/arama" component={Search} />
         <Route path="/liderboard" component={Leaderboard} />
         <Route path="/bildirimler" component={Notifications} />
+        <Route path="/mesajlar" component={Messages} />
         
         <Route component={NotFound} />
       </Switch>
